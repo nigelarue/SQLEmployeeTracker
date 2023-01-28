@@ -1,0 +1,23 @@
+{
+  "name": "sqlemployeetracker",
+  "version": "1.0.0",
+  "description": "SQL Employee tracker",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nigelarue/SQLEmployeeTracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nigelarue/SQLEmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/nigelarue/SQLEmployeeTracker#readme",
+  "dependencies": {
+    "inquirer": "^9.1.4",
+    "mysql": "^2.18.1"
+  }
+}
