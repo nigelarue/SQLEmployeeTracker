@@ -126,8 +126,8 @@ function initializePrompts() {
 
 // functions for above calls below to pull databased employees, roles, departments, and managers.
 
-// employee functions
-
+// EMPLOYEE functions
+// see all databased employees
 function viewEmployees() {
  db.databasedEmployees()
    .then(([rows]) => {
@@ -201,7 +201,7 @@ function addEmployee() {
      })
   })
 }
-// updating employee
+// remove employee
 function removeEmployee() {
  db.databasedEmployees()
    .then(([rows]) => {
@@ -219,6 +219,84 @@ function removeEmployee() {
        .then(res => db.removeEmployee(res.employeeId))
        .then(() => console.log('Employee removed from database.'))
        .then(() => initializePrompts)
+   })
+}
+// update employee role & manager
+function updateEmployeeRole() {
+ db.databasedEmployees()
+   .then(([rows]) => {
+    let employees = rows;
+    const employeeList = employees.map(({ id, surname, forename }) => ({
+     name: `${surname}, ${forename}`,
+     value: id
+    }));
+    prompt([{
+     type: 'list',
+     name: 'employeeId',
+     message: 'Please select employee from the list:',
+     choices: employeeList
+    }]).then(res => {
+     let employeeId = res.employeeId;
+     db.databasedRoles()
+       .then(([rows]) => {
+        let roles = rows;
+        const roleList = roles.map(({ id, title }) => ({
+         name: title,
+         value: id
+        }));
+        prompt([
+         {
+          type: 'list',
+          name: 'roleId',
+          message: 'Please select role update from the list:',
+          choices: roleList
+         }
+        ])
+         .then(res => db.updateEmployeeRole(employeeId, res.roleId))
+         .then(() => console.log('Employee role updated.'))
+         .then(() => initializePrompts())
+       });
+    });
+   })
+}
+function updateEmployeeManager() {
+ db.databasedEmployees()
+   .then(([rows]) => {
+    let employees = rows;
+    const employeeList = employees.map(({ id, surname, forename }) => ({
+     name: `${surname}, ${forename}`,
+     value: id
+    }));
+    prompt([
+      {
+       type: 'list',
+       name: 'employeeId',
+       message: 'Please select manager update from the list:',
+       choices: employeeList
+      }
+    ])
+      .then(res => {
+       let employeeId = res.employeeId
+       db.databasedManagers(employeeId)
+         .then(([rows]) => {
+          let managers = rows;
+          const managerList = managers.map(({ id, surname, forename }) => ({
+           name: `${surname}, ${forename}`,
+           value: id
+          }));
+          prompt([
+           {
+            type: 'list',
+            name: 'managerId',
+            message: 'Please select new manager from the list:',
+            choices: managerList
+           }
+          ])
+            .then(res => db.updateEmployeeManager(employeeId, res.managerId))
+            .then(() => console.log('Employee manager updated.'))
+            .then(() => initializePrompts)
+         })
+      })
    })
 }
 
