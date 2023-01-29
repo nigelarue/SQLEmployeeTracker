@@ -7,12 +7,12 @@ class DB {
  // Pulls all employees with their associated roles, departments, salaries, and managers.
  databasedEmployees() {
   return this.connection.promise().query(
-   'SELECT employee.id, employee.surname, employee.forename, role.title, department.name AS department, role.salary, CONCAT(manager.surname, " ", manager.forename) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;'
+   'SELECT employee.id, employee.last_name, employee.first_name, role.title, department.name AS department, role.salary, CONCAT(manager.last_name, " ", manager.first_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;'
   );
  }
  databasedManagers(employeeId) {
   return this.connection.promise().query(
-   'SELECT id, surname, forename FROM employee WHERE id != ?',
+   'SELECT id, last_name, first_name FROM employee WHERE id != ?',
    employeeId
   );
  }

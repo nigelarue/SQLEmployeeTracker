@@ -1,6 +1,6 @@
-const { prompt } = require('inquirer');
-const db = require('./db');
-require('console.table');
+const { prompt } = require("inquirer");
+const db = require('./db').default;
+require("console.table");
 
 init();
 
@@ -62,41 +62,41 @@ function initializePrompts() {
      }
     ]
    }
-  ]).then(res => {
+ ]).then(res => {
    let choices = res.choices;
    switch (choices) {
-    case 'VIEW_EMPLOYEES':
-     viewEmployees();
-     break;
-    case 'ADD_EMPLOYEE':
-     addEmployee();
-     break;
-    case 'REMOVE_EMPLOYEE':
-     removeEmployee();
-     break;
-    case 'UPDATE_EMPLOYEE_ROLE':
-     updateEmployeeRole();
-     break;
-    case 'VIEW_DEPARTMENTS':
-     viewDepartments();
-     break;
-    case 'ADD_DEPARTMENT':
-     addDepartment();
-     break;
-    case 'REMOVE_DEPARTMENT':
-     removeDepartment();
-     break;
-    case 'VIEW_ROLES':
-     viewRoles();
-     break;
-    case 'ADD_ROLE':
-     addRole();
-     break;
-    case 'REMOVE_ROLE':
-     removeRole();
-     break;
-    default:
-     exit();
+     case 'VIEW_EMPLOYEES':
+      viewEmployees();
+      break;
+     case 'ADD_EMPLOYEE':
+      addEmployee();
+      break;
+     case 'REMOVE_EMPLOYEE':
+      removeEmployee();
+      break;
+     case 'UPDATE_EMPLOYEE_ROLE':
+      updateEmployeeRole();
+      break;
+     case 'VIEW_DEPARTMENTS':
+      viewDepartments();
+      break;
+     case 'ADD_DEPARTMENT':
+      addDepartment();
+      break;
+     case 'REMOVE_DEPARTMENT':
+      removeDepartment();
+      break;
+     case 'VIEW_ROLES':
+      viewRoles();
+      break;
+     case 'ADD_ROLE':
+      addRole();
+      break;
+     case 'REMOVE_ROLE':
+      removeRole();
+      break;
+     // default:
+     //  exit();
    }
   }
   )
@@ -119,17 +119,17 @@ function viewEmployees() {
 function addEmployee() {
  prompt([
   {
-   name: 'forename',
+   name: 'first_name',
    message: 'Please provide employee first name:'
   },
   {
-   name: 'surname',
-   message: 'Please provide employee surname:'
+   name: 'last_name',
+   message: 'Please provide employee last_name:'
   },
  ])
   .then(res => {
-   let firstName = res.forename;
-   let lastName = res.surname;
+   let firstName = res.first_name;
+   let lastName = res.last_name;
 
    db.databasedRoles()
      .then(([rows]) => {
@@ -150,9 +150,9 @@ function addEmployee() {
            db.databasedEmployees()
              .then(([rows]) => {
               let employees = rows;
-              const managerOptions = employees.map(({ id, surname, forename }) => (
+              const managerOptions = employees.map(({ id, last_name, first_name }) => (
                {
-                name: `${surname}, ${forename}`,
+                name: `${last_name}, ${first_name}`,
                 value: id
                }));
 
@@ -168,8 +168,8 @@ function addEmployee() {
                   let employee = {
                    manager_id: res.managerId,
                    role_id: roleId,
-                   surname: lastName,
-                   forename: firstName
+                   last_name: lastName,
+                   first_name: firstName
                   }
                   db.createEmployee(employee);
                  })
@@ -184,8 +184,8 @@ function removeEmployee() {
  db.databasedEmployees()
    .then(([rows]) => {
     let employees = rows;
-    const employeeList = employees.map(({ id, surname,forename }) => ({
-     name: `${surname}, ${forename}`,
+    const employeeList = employees.map(({ id, last_name,first_name }) => ({
+     name: `${last_name}, ${first_name}`,
      value: id
     }));
     prompt([{
@@ -204,8 +204,8 @@ function updateEmployeeRole() {
  db.databasedEmployees()
    .then(([rows]) => {
     let employees = rows;
-    const employeeList = employees.map(({ id, surname, forename }) => ({
-     name: `${surname}, ${forename}`,
+    const employeeList = employees.map(({ id, last_name, first_name }) => ({
+     name: `${last_name}, ${first_name}`,
      value: id
     }));
     prompt([{
