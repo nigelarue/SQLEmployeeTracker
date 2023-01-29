@@ -137,7 +137,7 @@ function viewEmployees() {
    })
    .then(() => initializePrompts());
 }
-
+// adding employee
 function addEmployee() {
  prompt([
   {
@@ -201,5 +201,24 @@ function addEmployee() {
      })
   })
 }
-
+// updating employee
+function removeEmployee() {
+ db.databasedEmployees()
+   .then(([rows]) => {
+    let employees = rows;
+    const employeeList = employees.map(({ id, surname,forename }) => ({
+     name: `${surname}, ${forename}`,
+     value: id
+    }));
+    prompt([{
+     type: 'list',
+     name: 'employeeId',
+     message: 'Please select from the list:',
+     choices: employeeList
+    }])
+       .then(res => db.removeEmployee(res.employeeId))
+       .then(() => console.log('Employee removed from database.'))
+       .then(() => initializePrompts)
+   })
+}
 
