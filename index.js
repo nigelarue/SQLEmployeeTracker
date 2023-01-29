@@ -123,3 +123,83 @@ function initializePrompts() {
   }
   )
 }
+
+// functions for above calls below to pull databased employees, roles, departments, and managers.
+
+// employee functions
+
+function viewEmployees() {
+ db.databasedEmployees()
+   .then(([rows]) => {
+    let employees = rows;
+    console.log("\n");
+    console.table(employees);
+   })
+   .then(() => initializePrompts());
+}
+
+function addEmployee() {
+ prompt([
+  {
+   name: 'forename',
+   message: 'Please provide employee first name:'
+  },
+  {
+   name: 'surname',
+   message: 'Please provide employee surname:'
+  },
+ ])
+  .then(res => {
+   let firstName = res.forename;
+   let lastName = res.surname;
+
+   db.databasedRoles()
+     .then(([rows]) => {
+      let roles = rows;
+      const roleOptions = roles.map(({ id, title }) => (
+       {
+        name: title,
+        value: id
+       }));
+       prompt({
+        type: 'list',
+        name: 'roleId',
+        message: 'Please provide employee role:',
+        choices: roleOptions
+       })
+         .then(res => {
+           let roleId = res.roleId;
+           db.databasedEmployees()
+             .then(([rows]) => {
+              let employees = rows;
+              const managerOptions = employees.map(({ id, surname, forename }) => (
+               {
+                name: `${surname}, ${forename}`,
+                value: id
+               }));
+
+               managerOptions.unshift({ name: 'None', value: null });
+
+               prompt({
+                type: 'list',
+                name: 'managerId',
+                message: 'Please provide the name of the manager:',
+                choices: managerOptions
+               })
+                 .then(res => {
+                  let employee = {
+                   manager_id: res.managerId,
+                   role_id: roleId,
+                   surname: lastName,
+                   forename: firstName
+                  }
+                  db.createEmployee(employee);
+                 })
+                 .then(() => console.log(`Added ${lastName} ${firstName} to the database`)).then(() => initializePrompts())
+             })
+         })
+     })
+  })
+}
+
+
