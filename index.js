@@ -22,14 +22,6 @@ function initializePrompts() {
       value:'VIEW_EMPLOYEES'
      },
      {
-      name: 'View Current Employees By Department',
-      value: 'VIEW_EMPLOYEES_DEPARTMENT'
-     },
-     {
-      name: 'View Current Employees By Manager',
-      value: 'VIEW_EMPLOYEES_MANAGER'
-     },
-     {
       name: 'Add Employee',
       value: 'ADD_EMPLOYEE'
      },
@@ -42,16 +34,12 @@ function initializePrompts() {
       value: 'UPDATE_EMPLOYEE_ROLE'
      },
      {
-      name: 'Update Employee Manager',
-      value: 'UPDATE_EMPLOYEE_MANAGER'
-     },
-     {
       name: 'View Current Roles',
       value: 'VIEW_ROLES'
      },
      {
       name: 'Add Role',
-      value: 'ADD-ROLE'
+      value: 'ADD_ROLE'
      },
      {
       name: 'Remove Role',
@@ -81,12 +69,6 @@ function initializePrompts() {
     case 'VIEW_EMPLOYEES':
      viewEmployees();
      break;
-    case 'VIEW_EMPLOYEES_DEPARTMENT':
-     viewEmployeesDepartment();
-     break;
-    case 'VIEW_EMPLOYEES_MANAGER':
-     viewEmployeesManager();
-     break;
     case 'ADD_EMPLOYEE':
      addEmployee();
      break;
@@ -95,9 +77,6 @@ function initializePrompts() {
      break;
     case 'UPDATE_EMPLOYEE_ROLE':
      updateEmployeeRole();
-     break;
-    case 'UPDATE_EMPLOYEE_MANAGER':
-     updateEmployeeManager();
      break;
     case 'VIEW_DEPARTMENTS':
      viewDepartments();
@@ -132,7 +111,7 @@ function viewEmployees() {
  db.databasedEmployees()
    .then(([rows]) => {
     let employees = rows;
-    console.log("\n");
+    console.log('\n');
     console.table(employees);
    })
    .then(() => initializePrompts());
@@ -221,7 +200,7 @@ function removeEmployee() {
        .then(() => initializePrompts)
    })
 }
-// update employee role & manager
+// update employee role 
 function updateEmployeeRole() {
  db.databasedEmployees()
    .then(([rows]) => {
@@ -259,44 +238,119 @@ function updateEmployeeRole() {
     });
    })
 }
-function updateEmployeeManager() {
- db.databasedEmployees()
+// ROLE functions
+// see all databased roles
+function viewRoles() {
+ db.databasedRoles()
    .then(([rows]) => {
-    let employees = rows;
-    const employeeList = employees.map(({ id, surname, forename }) => ({
-     name: `${surname}, ${forename}`,
+     let roles = rows;
+     console.log('\n');
+     console.table(roles);
+   })
+   .then(() => initializePrompts());
+}
+// add role
+function addRole() {
+ db.databasedRoles()
+   .then(([rows]) => {
+    let departments = rows;
+    const departmentsList = departments.map(({ id, name }) => ({
+     name: name,
      value: id
     }));
     prompt([
-      {
-       type: 'list',
-       name: 'employeeId',
-       message: 'Please select manager update from the list:',
-       choices: employeeList
-      }
+     {
+      name: 'title',
+      message: 'Please provide role title:'
+     },
+     {
+      name: 'salary',
+      message: 'Please provide salary for this role:'
+     },
+     {
+      type: 'list',
+      name: 'department_id',
+      message: 'Please provide the department for the role:',
+      choices: departmentsList
+     }
     ])
-      .then(res => {
-       let employeeId = res.employeeId
-       db.databasedManagers(employeeId)
-         .then(([rows]) => {
-          let managers = rows;
-          const managerList = managers.map(({ id, surname, forename }) => ({
-           name: `${surname}, ${forename}`,
-           value: id
-          }));
-          prompt([
-           {
-            type: 'list',
-            name: 'managerId',
-            message: 'Please select new manager from the list:',
-            choices: managerList
-           }
-          ])
-            .then(res => db.updateEmployeeManager(employeeId, res.managerId))
-            .then(() => console.log('Employee manager updated.'))
-            .then(() => initializePrompts)
-         })
+      .then(role => {
+       db.createRole(role)
+         .then(() => console.log(`${role.title} has been added to the database.`))
+         .then(() => initializePrompts())
       })
    })
 }
-
+// remove role
+function removeRole() {
+ db.databasedRoles()
+   .then(([rows]) => {
+    let roles = rows;
+    const roleList = roles.map(({ id, title }) => ({
+     name: title,
+     value: id
+    }));
+    prompt([
+     {
+      type: 'list',
+      name: 'roleId',
+      message: 'Please select desired role to remove from the list:',
+      choices: roleList
+     }
+    ])
+      .then(res => db.removeRole(res.roleId))
+      .then(() => console.log('Role has been removed from database.'))
+      .then(() => initializePrompts())
+   })
+}
+// DEPARTMENT functions
+// see all databased departments
+function viewDepartments() {
+ db.databasedDepartments()
+   .then(([rows]) => {
+    let departments = rows;
+    console.log('\n');
+    console.table(departments);
+   })
+   .then(() => initializePrompts());
+}
+// add department
+function addDepartment() {
+ prompt([
+  {
+   name: 'name',
+   message: 'Please provide department name:'
+  }
+ ])
+   .then(res => {
+    let name = res;
+    db.createDepartment(name)
+      .then(() => console.log(`Added ${name.name} to departments in database.`))
+      .then(() => initializePrompts())
+   })
+}
+// remove department
+function removeDepartment() {
+ db.databasedDepartments()
+   .then(([rows]) => {
+    let departments = rows;
+    const departmentsList = departments.map(({ id, name }) => ({
+     name: name,
+     value: id
+    }));
+    prompt({
+     type: 'list',
+     name: 'departmentId',
+     message: 'Please select which department to remove from list:',
+     choices: departmentsList
+    })
+      .then(res => db.removeDepartment(res.departmentId))
+      .then(() => console.log(`Department removed from database.`))
+      .then(() => initializePrompts())
+   })
+}
+// EXIT function
+function exit() {
+ console.log('You have successfully exited the application.');
+ process.exit();
+}
